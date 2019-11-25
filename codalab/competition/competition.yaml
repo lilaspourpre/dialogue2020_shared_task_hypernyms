@@ -1,0 +1,31 @@
+title: 'Taxonomy completion'
+description: 'A Shared Task on Taxonomy completion for the Russian Language'
+image: skoltech_logo.png
+has_registration: false
+html:
+    overview: overview.html
+    evaluation: evaluation.html
+    terms: terms_and_conditions.html
+    data: data.html
+phases:
+    0:
+        phasenumber: 0
+        label: "Testing"
+        start_date: 2019-15-12
+        max_submissions: 100
+        scoring_program: scoring_program.zip
+        reference_data: reference_data.zip
+        color: green
+admin_names: varvara
+leaderboard:
+    leaderboards:
+        RESULTS: &RESULTS
+            label: Results
+            rank: 1
+    columns:
+        precision:
+            leaderboard: *RESULTS
+            label: precision
+            rank: 1
+            numeric_format: 4
+            sort: desc
