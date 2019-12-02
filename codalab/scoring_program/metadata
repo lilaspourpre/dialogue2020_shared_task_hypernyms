@@ -1,2 +1,0 @@
-command: python $program/evaluate.py $input $output
-description: RUSSE WSI evaluation program.
