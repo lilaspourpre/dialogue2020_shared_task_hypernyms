@@ -1,0 +1,41 @@
+title: 'Taxonomy completion'
+description: 'A Shared Task on Taxonomy completion for the Russian Language'
+image: logo.png
+has_registration: False
+html:
+    overview: overview.html
+    evaluation: evaluation.html
+    terms: terms_and_conditions.html
+    data: data.html
+phases:
+    0:
+        phasenumber: 0
+        label: "Testing"
+        start_date: 2019-12-01
+        max_submissions: 100
+        scoring_program: scoring_program.zip
+        reference_data: reference_data.zip
+leaderboard:
+    leaderboards:
+        RESULTS: &RESULTS
+            label: Results
+            rank: 1
+    columns:
+        f1:
+            leaderboard: *RESULTS
+            label: F1 measure
+            rank: 1
+            numeric_format: 4
+            sort: desc
+        jaccard:
+            leaderboard: *RESULTS
+            label: jaccard
+            rank: 2
+            numeric_format: 4
+            sort: desc
+        jaccard_weighted:
+            leaderboard: *RESULTS
+            label: jaccard (weighted)
+            rank: 3
+            numeric_format: 4
+            sort: desc
