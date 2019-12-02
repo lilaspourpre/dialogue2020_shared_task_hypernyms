@@ -1,0 +1,6 @@
+{
+  "bert_path": "baselines/models/rubert_cased_deeppavlov",
+  "test_path": "../../dataset/test/test_tiny.tsv",
+  "news_corpus": "../../dataset/news_dataframes.zip",
+  "output_path": "predictions/predicted_tiny2.tsv"
+}
