@@ -1,7 +1,7 @@
 all: codalab.zip
 
 codalab/scoring_program.zip: scoring_program/*
-	cd scoring_program && zip ../codalab/scoring_program.zip * && cd ..
+	cd scoring_program && zip -r ../codalab/scoring_program.zip * && cd ..
 
 codalab/reference_data.zip:
 	zip -j codalab/reference_data.zip dataset/dev_synsets.tsv dataset/ruwordnet.db
