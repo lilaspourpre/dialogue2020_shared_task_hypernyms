@@ -16,6 +16,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('input_dir')
     parser.add_argument('output_dir')
+    parser.add_argument('ruwordnet_path', required=False, default=None)
+    parser.add_argument('db_path', required=False, default=None)
     args = parser.parse_args()
 
     output_dir = sys.argv[2]
@@ -39,7 +41,10 @@ def main():
         assert os.path.isfile(truth_file)
         truth = read_dataset(truth_file)
 
-        ruwordnet = RuWordnet(ruwordnet_path=None, db_path=os.path.join(truth_dir, 'ruwordnet.db'))
+        if args.ruwordnet_path is None and args.db_path is None:
+            ruwordnet = RuWordnet(ruwordnet_path=None, db_path=os.path.join(truth_dir, 'ruwordnet.db'))
+        else:
+            ruwordnet = RuWordnet(args.ruwordnet_path, args.db_path)
 
         submission_answer_file = get_one_csv_path(submit_dir, 'submission')
         assert os.path.isfile(submission_answer_file)
