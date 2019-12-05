@@ -1,7 +1,7 @@
 title: 'Taxonomy completion'
 description: 'A Shared Task on Taxonomy completion for the Russian Language'
 image: logo.png
-has_registration: False
+has_registration: True
 html:
     overview: overview.html
     evaluation: evaluation.html
@@ -10,32 +10,110 @@ html:
 phases:
     0:
         phasenumber: 0
-        label: "Testing"
+        color: green
+        label: "Practice (NOUNS)"
         start_date: 2019-12-01
-        max_submissions: 100
+        max_submissions: 999
+        max_submissions_per_day: 999
         scoring_program: scoring_program.zip
-        reference_data: reference_data.zip
+        reference_data: reference_data_public_nouns.zip
+    1:
+        phasenumber: 1
+        color: green
+        label: "Practice (VERBS)"
+        start_date: 2019-12-01
+        max_submissions: 999
+        max_submissions_per_day: 999
+        scoring_program: scoring_program.zip
+        reference_data: reference_data_public_verbs.zip
+    2:
+        phasenumber: 2
+        color: yellow
+        label: "Evaluation (NOUNS)"
+        start_date: 2020-02-05
+        max_submissions: 5
+        max_submissions_per_day: 5
+        scoring_program: scoring_program.zip
+        reference_data: reference_data_nouns.zip
+        is_scoring_only: true
+    3:
+        phasenumber: 3
+        color: yellow
+        label: "Evaluation (VERBS)"
+        start_date: 2020-02-05
+        max_submissions: 5
+        max_submissions_per_day: 5
+        scoring_program: scoring_program.zip
+        reference_data: reference_data_verbs.zip
+        is_scoring_only: true
+    4:
+        phasenumber: 4
+        color: orange
+        label: "Post-Evaluation"
+        start_date: 2020-02-20
+        max_submissions: 999
+        max_submissions_per_day: 999
+        scoring_program: scoring_program.zip
+        reference_data: reference_data_nouns.zip
+    5:
+        phasenumber: 5
+        color: orange
+        label: "Post-Evaluation (VERBS)"
+        start_date: 2020-02-20
+        max_submissions: 999
+        max_submissions_per_day: 999
+        scoring_program: scoring_program.zip
+        reference_data: reference_data_verbs.zip
 leaderboard:
     leaderboards:
         RESULTS: &RESULTS
-            label: Results
+            label: RESULTS
             rank: 1
+    column_groups:
+        public: &PUBLIC
+            label: public
+        private: &PRIVATE
+            label: private
     columns:
-        f1:
+        f1_public:
             leaderboard: *RESULTS
+            column_group: *PUBLIC
             label: F1 measure
             rank: 1
             numeric_format: 4
             sort: desc
-        jaccard:
+        jaccard_public:
             leaderboard: *RESULTS
+            column_group: *PUBLIC
             label: jaccard
             rank: 2
             numeric_format: 4
             sort: desc
-        jaccard_weighted:
+        jaccard_weighted_public:
             leaderboard: *RESULTS
+            column_group: *PUBLIC
             label: jaccard (weighted)
             rank: 3
+            numeric_format: 4
+            sort: desc
+        f1_private:
+            leaderboard: *RESULTS
+            column_group: *PRIVATE
+            label: F1 measure
+            rank: 4
+            numeric_format: 4
+            sort: desc
+        jaccard_private:
+            leaderboard: *RESULTS
+            column_group: *PRIVATE
+            label: jaccard
+            rank: 5
+            numeric_format: 4
+            sort: desc
+        jaccard_weighted_private:
+            leaderboard: *RESULTS
+            column_group: *PRIVATE
+            label: jaccard (weighted)
+            rank: 6
             numeric_format: 4
             sort: desc

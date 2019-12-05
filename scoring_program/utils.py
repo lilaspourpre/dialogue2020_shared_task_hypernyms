@@ -14,16 +14,22 @@ def read_dataset(data_path, sep='\t'):
     return vocab
 
 
-def get_one_csv_path(parent, kind):
-    names = [name for name in os.listdir(parent)
-             if name.endswith('.tsv') or name.endswith('.csv')]
+def get_csv_paths(parent, kind):
+    names = [name for name in os.listdir(parent) if (name.endswith('.tsv') or name.endswith('.csv'))]
     if len(names) == 0:
         raise RuntimeError('No .csv or .tsv files in {}'.format(kind))
-    if len(names) > 1:
-        raise RuntimeError('Multiple files in {}: {}'
-                           .format(kind, ' '.join(names)))
-    name, = names
-    return os.path.join(parent, name)
+    return [os.path.join(parent, name) for name in names]
+
+
+def get_data(paths):
+    data = {}
+    assert sum([os.path.isfile(truth_file) for truth_file in paths])
+    for path in paths:
+        if 'public' in path:
+            data['public'] = read_dataset(path)
+        if 'private' in path:
+            data['private'] = read_dataset(path)
+    return data
 
 
 def save_to_file(words_with_hypernyms, output_path):
