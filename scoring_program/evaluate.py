@@ -4,8 +4,7 @@ import argparse
 import os
 import sys
 
-from utils import get_data, get_csv_paths, read_dataset
-from ruwordnet.ruwordnet_reader import RuWordnet
+from utils import get_csv_path, read_dataset
 
 
 # This is python 2 code
@@ -36,96 +35,50 @@ def main():
     output_filename = os.path.join(output_dir, 'scores.txt')
 
     with open(output_filename, 'wt') as output_file:
-
-        if args.ruwordnet_path is None and args.db_path is None:
-            ruwordnet = RuWordnet(ruwordnet_path=None, db_path=os.path.join(truth_dir, 'ruwordnet.db'))
-        else:
-            ruwordnet = RuWordnet(args.ruwordnet_path, args.db_path)
-
-        truth_files = get_csv_paths(truth_dir, 'reference')
-        submitted_files = get_csv_paths(submit_dir, 'submission')
-        if len(truth_files) == 1:
-            write_scores_to_file(read_dataset(truth_files[0]), read_dataset(submitted_files[0]),
-                                 ruwordnet, 'public', output_file)
-        elif len(truth_files) == 2:
-            truth_data = get_data(truth_files)
-            submitted_data = get_data(submitted_files)
-
-            if 'public' in truth_data and 'public' in submitted_data:
-                write_scores_to_file(truth_data['public'], submitted_data['public'],
-                                     ruwordnet, 'public', output_file)
-
-            if 'private' in truth_data and 'private' in submitted_data:
-                write_scores_to_file(truth_data['private'], submitted_data['private'],
-                                     ruwordnet, 'private', output_file)
+        truth = read_dataset(get_csv_path(truth_dir, 'reference'))
+        submitted = read_dataset(get_csv_path(submit_dir, 'submission'))
+        if set(truth) != set(submitted):
+            print("Not all words are presented in your file")
+        mean_ap, mean_rr = get_score(truth, submitted)
+        output_file.write("map: {0}\nmrr: {1}\n".format(mean_ap, mean_rr))
 
 
-def write_scores_to_file(truth, submitted, ruwordnet, dataset_type, output_file):
-    f1, jaccard, jaccard_weighted = get_score(truth, submitted, ruwordnet)
-    output_file.write("f1_{0}: {1}\njaccard_{0}: {2}\njaccard_weighted_{0}: {3}\n".format(dataset_type,
-                                                                                          f1, jaccard,
-                                                                                          jaccard_weighted))
-
-
-def get_score(true, predicted, ruwordnet):
-    all_correct = 0
-    jaccard_sum = 0
-    soft_jaccard = 0
-    f1_sum = 0
-
-    all_relatives = 0
-    mean_relatives = 0
+def get_score(true, predicted):
+    ap_sum = 0
+    rr_sum = 0
 
     for neologism in true:
         # getting sets of hypernyms for true and predicted
-        true_hypernyms = true.get(neologism, set())
-        predicted_hypernyms = predicted.get(neologism, set())
-
-        relatives = 0
-        for t_h in true_hypernyms:
-            for p_h in predicted_hypernyms:
-                if p_h != '' and ruwordnet.are_relatives(t_h, p_h):
-                    relatives += 1
-                    break
-        all_relatives += relatives
-        mean_relatives += relatives / len(true_hypernyms)
-
-        # count all_correct
-        all_correct += int(true_hypernyms == predicted_hypernyms)
+        true_hypernyms = set(true.get(neologism, []))
+        predicted_hypernyms = predicted.get(neologism, [])
 
         # get metrics
-        additional_sum = get_additional_weights(true_hypernyms, predicted_hypernyms, ruwordnet)
-        jaccard_sum += compute_jaccard(true_hypernyms, predicted_hypernyms)
-        soft_jaccard += compute_jaccard(true_hypernyms, predicted_hypernyms, additional_sum)
-        f1_sum += compute_f1(true_hypernyms, predicted_hypernyms, additional_sum)
+        ap_sum += compute_ap(true_hypernyms, predicted_hypernyms)
+        rr_sum += compute_rr(true_hypernyms, predicted_hypernyms)
 
-    return f1_sum / len(true), jaccard_sum / len(true), soft_jaccard / len(true)
+    return ap_sum / len(true), rr_sum / len(true)
 
 
-def compute_jaccard(true, predicted, additional_sum=0):
-    intersection = len(true.intersection(predicted)) + additional_sum
-    return intersection / len(true.union(predicted))
+def compute_ap(actual, predicted, k=10):
+    if not actual:
+        return 0.0
+
+    if len(predicted) > k:
+        predicted = predicted[:k]
+
+    score = 0.0
+    num_hits = 0.0
+
+    for i, p in enumerate(predicted):
+        if p in actual and p not in predicted[:i]:
+            num_hits += 1.0
+            score += num_hits / (i + 1.0)
+
+    return score / min(len(actual), k)
 
 
-def get_additional_weights(true, predicted, ruwordnet):
-    relatives = set([relative for synset in predicted for relative in get_relatives(synset, ruwordnet)])
-    weights = [0.5 for true_hypernym in true.difference(predicted) if true_hypernym in relatives]
-    return sum(weights)
-
-
-def get_relatives(synset, ruwordnet):
-    return ruwordnet.get_hypernyms_by_id(synset) + ruwordnet.get_hyponyms_by_id(synset)
-
-
-def compute_f1(true, predicted, additional_sum):
-    tp = len(true.intersection(predicted)) + additional_sum
-    fp = len(predicted.difference(true)) - additional_sum
-    fn = len(true.difference(predicted)) - additional_sum
-
-    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-    return 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
-
-
-if __name__ == '__main__':
-    main()
+def compute_rr(true, predicted):
+    for i, synset in enumerate(predicted):
+        if synset in true:
+            return 1/(i+1)
+    return 0
