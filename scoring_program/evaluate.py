@@ -43,7 +43,7 @@ def main():
         output_file.write("map: {0}\nmrr: {1}\n".format(mean_ap, mean_rr))
 
 
-def get_score(true, predicted):
+def get_score(true, predicted, k=10):
     ap_sum = 0
     rr_sum = 0
 
@@ -53,8 +53,8 @@ def get_score(true, predicted):
         predicted_hypernyms = predicted.get(neologism, [])
 
         # get metrics
-        ap_sum += compute_ap(true_hypernyms, predicted_hypernyms)
-        rr_sum += compute_rr(true_hypernyms, predicted_hypernyms)
+        ap_sum += compute_ap(true_hypernyms, predicted_hypernyms, k)
+        rr_sum += compute_rr(true_hypernyms, predicted_hypernyms, k)
 
     return ap_sum / len(true), rr_sum / len(true)
 
@@ -77,8 +77,8 @@ def compute_ap(actual, predicted, k=10):
     return score / min(len(actual), k)
 
 
-def compute_rr(true, predicted):
-    for i, synset in enumerate(predicted):
+def compute_rr(true, predicted, k=10):
+    for i, synset in enumerate(predicted[:k]):
         if synset in true:
             return 1/(i+1)
     return 0
