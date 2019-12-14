@@ -1,5 +1,5 @@
-title: 'Taxonomy completion'
-description: 'A Shared Task on Taxonomy completion for the Russian Language'
+title: 'Dialogue Evaluation 2020: Taxonomy Enrichment for the Russian Language'
+description: 'Dialogue Evaluation 2020: Taxonomy Enrichment for the Russian Language'
 image: logo.png
 has_registration: True
 html:
@@ -30,7 +30,7 @@ phases:
         phasenumber: 2
         color: yellow
         label: "Evaluation (NOUNS)"
-        start_date: 2019-12-01
+        start_date: 2020-01-31
         max_submissions: 2
         max_submissions_per_day: 2
         scoring_program: scoring_program.zip
@@ -40,7 +40,7 @@ phases:
         phasenumber: 3
         color: yellow
         label: "Evaluation (VERBS)"
-        start_date: 2020-02-05
+        start_date: 2020-01-31
         max_submissions: 2
         max_submissions_per_day: 2
         scoring_program: scoring_program.zip
@@ -49,8 +49,8 @@ phases:
     4:
         phasenumber: 4
         color: orange
-        label: "Post-Evaluation"
-        start_date: 2019-12-01
+        label: "Post-Evaluation (NOUNS)"
+        start_date: 2020-02-28
         max_submissions: 999
         max_submissions_per_day: 999
         scoring_program: scoring_program.zip
@@ -59,7 +59,7 @@ phases:
         phasenumber: 5
         color: orange
         label: "Post-Evaluation (VERBS)"
-        start_date: 2019-12-01
+        start_date: 2020-02-28
         max_submissions: 999
         max_submissions_per_day: 999
         scoring_program: scoring_program.zip

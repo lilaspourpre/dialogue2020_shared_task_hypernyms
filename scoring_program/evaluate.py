@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import print_function, division
 import argparse
 import os
 import sys
@@ -14,8 +13,6 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('input_dir')
     parser.add_argument('output_dir')
-    parser.add_argument('--ruwordnet_path', required=False, default=None)
-    parser.add_argument('--db_path', required=False, default=None)
     args = parser.parse_args()
 
     output_dir = sys.argv[2]
@@ -82,3 +79,7 @@ def compute_rr(true, predicted, k=10):
         if synset in true:
             return 1/(i+1)
     return 0
+
+
+if __name__ == '__main__':
+    main()
