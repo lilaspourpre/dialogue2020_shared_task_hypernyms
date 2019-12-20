@@ -77,8 +77,8 @@ def compute_ap(actual, predicted, k=10):
 def compute_rr(true, predicted, k=10):
     for i, synset in enumerate(predicted[:k]):
         if synset in true:
-            return 1/(i+1)
-    return 0
+            return 1.0 / (i + 1.0)
+    return 0.0
 
 
 if __name__ == '__main__':
