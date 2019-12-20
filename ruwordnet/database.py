@@ -16,6 +16,8 @@ class DatabaseRuWordnet(object):
     def create_ruwordnet(self):
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS synsets 
         (id text NOT NULL PRIMARY KEY, ruthes_name text)""")
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS senses 
+                (sense_id text NOT NULL PRIMARY KEY, synset_id text, sense_name text)""")
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS relations 
         (hypernym_id text NOT NULL, hyponym_id text NOT NULL, PRIMARY KEY(hypernym_id, hyponym_id))""")
         self.conn.commit()
@@ -26,6 +28,10 @@ class DatabaseRuWordnet(object):
 
     def insert_relations(self, relations):
         self.cursor.executemany("INSERT INTO relations VALUES (?,?)", relations)
+        self.conn.commit()
+
+    def insert_senses(self, senses):
+        self.cursor.executemany("INSERT INTO senses VALUES (?,?,?)", senses)
         self.conn.commit()
 
     def get_synset_names(self):
@@ -60,3 +66,9 @@ class DatabaseRuWordnet(object):
 
     def get_all_relations(self):
         return self.cursor.execute('''SELECT * FROM relations''').fetchall()
+
+    def get_all_synsets(self, endswith=""):
+        return [i[0] for i in self.cursor.execute('''SELECT id FROM synsets''').fetchall() if i[0].endswith(endswith)]
+
+    def get_all_senses(self):
+        return self.cursor.execute('''SELECT * FROM senses''').fetchall()
