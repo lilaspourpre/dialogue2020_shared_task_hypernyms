@@ -3,7 +3,7 @@ import argparse
 import os
 import sys
 
-from utils import get_csv_path, read_dataset
+from utils import get_submitted, get_reference
 
 
 # This is python 2 code
@@ -32,28 +32,31 @@ def main():
     output_filename = os.path.join(output_dir, 'scores.txt')
 
     with open(output_filename, 'wt') as output_file:
-        truth = read_dataset(get_csv_path(truth_dir, 'reference'))
-        submitted = read_dataset(get_csv_path(submit_dir, 'submission'))
-        if set(truth) != set(submitted):
+        all_true, direct_parents = get_reference(truth_dir)
+        submitted = get_submitted(submit_dir)
+        if set(all_true) != set(submitted):
             print("Not all words are presented in your file")
-        mean_ap, mean_rr = get_score(truth, submitted)
+        mean_ap, mean_rr = get_score(all_true, direct_parents, submitted)
         output_file.write("map: {0}\nmrr: {1}\n".format(mean_ap, mean_rr))
 
 
-def get_score(true, predicted, k=10):
+def get_score(all_true, direct_true, predicted, k=10):
     ap_sum = 0
     rr_sum = 0
 
-    for neologism in true:
+    for neologism in all_true:
         # getting sets of hypernyms for true and predicted
-        true_hypernyms = set(true.get(neologism, []))
+        all_hypernyms = set(all_true.get(neologism, []))
+        direct_hypernyms = set(direct_true.get(neologism, []))
         predicted_hypernyms = predicted.get(neologism, [])
 
         # get metrics
-        ap_sum += compute_ap(true_hypernyms, predicted_hypernyms, k)
-        rr_sum += compute_rr(true_hypernyms, predicted_hypernyms, k)
+        ap_sum += max(compute_ap(all_hypernyms, predicted_hypernyms, k),
+                      compute_ap(direct_hypernyms, predicted_hypernyms, k))
+        rr_sum += max(compute_rr(all_hypernyms, predicted_hypernyms, k),
+                      compute_rr(direct_hypernyms, predicted_hypernyms, k))
 
-    return ap_sum / len(true), rr_sum / len(true)
+    return ap_sum / len(all_true), rr_sum / len(all_true)
 
 
 def compute_ap(actual, predicted, k=10):
