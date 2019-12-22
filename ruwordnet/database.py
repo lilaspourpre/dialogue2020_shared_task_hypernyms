@@ -68,6 +68,9 @@ class DatabaseRuWordnet(object):
         return self.cursor.execute('''SELECT * FROM relations''').fetchall()
 
     def get_all_synsets(self, endswith=""):
+        return [i for i in self.cursor.execute('''SELECT * FROM synsets''').fetchall() if i[0].endswith(endswith)]
+
+    def get_all_ids(self, endswith=""):
         return [i[0] for i in self.cursor.execute('''SELECT id FROM synsets''').fetchall() if i[0].endswith(endswith)]
 
     def get_all_senses(self):
