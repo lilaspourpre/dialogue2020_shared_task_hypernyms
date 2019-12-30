@@ -32,47 +32,49 @@ def main():
     output_filename = os.path.join(output_dir, 'scores.txt')
 
     with open(output_filename, 'wt') as output_file:
-        all_true, direct_parents = get_reference(truth_dir)
+        true = get_reference(truth_dir)
         submitted = get_submitted(submit_dir)
-        if set(all_true) != set(submitted):
+        if set(true) != set(submitted):
             print("Not all words are presented in your file")
-        mean_ap, mean_rr = get_score(all_true, direct_parents, submitted)
+        mean_ap, mean_rr = get_score(true, submitted, 10)
         output_file.write("map: {0}\nmrr: {1}\n".format(mean_ap, mean_rr))
 
 
-def get_score(all_true, direct_true, predicted, k=10):
+def get_score(true, predicted, k=10):
     ap_sum = 0
     rr_sum = 0
 
-    for neologism in all_true:
+    for neologism in true:
         # getting sets of hypernyms for true and predicted
-        all_hypernyms = set(all_true.get(neologism, []))
-        direct_hypernyms = set(direct_true.get(neologism, []))
+        true_hypernyms = true.get(neologism, [])
         predicted_hypernyms = predicted.get(neologism, [])
 
         # get metrics
-        ap_sum += max(compute_ap(all_hypernyms, predicted_hypernyms, k),
-                      compute_ap(direct_hypernyms, predicted_hypernyms, k))
-        rr_sum += max(compute_rr(all_hypernyms, predicted_hypernyms, k),
-                      compute_rr(direct_hypernyms, predicted_hypernyms, k))
-
-    return ap_sum / len(all_true), rr_sum / len(all_true)
+        ap_sum += compute_ap(true_hypernyms, predicted_hypernyms, k)
+        rr_sum += compute_rr(set([j for i in true_hypernyms for j in i]), predicted_hypernyms, k)
+    return ap_sum / len(true), rr_sum / len(true)
 
 
 def compute_ap(actual, predicted, k=10):
     if not actual:
         return 0.0
 
-    if len(predicted) > k:
-        predicted = predicted[:k]
+    predicted = predicted[:k]
 
     score = 0.0
     num_hits = 0.0
-
+    already_predicted = set()
+    skipped = 0
     for i, p in enumerate(predicted):
-        if p in actual and p not in predicted[:i]:
-            num_hits += 1.0
-            score += num_hits / (i + 1.0)
+        if p in already_predicted:
+            skipped += 1
+            continue
+        for parents in actual:
+            if p in parents:
+                num_hits += 1.0
+                score += num_hits / (i + 1.0 - skipped)
+                already_predicted.update(parents)
+                break
 
     return score / min(len(actual), k)
 
