@@ -30,7 +30,7 @@ class BaselineModel(Model):
         return [i[0] for i in self.w2v_ruwordnet.similar_by_vector(self.w2v_data[neologism], topn)]
 
 
-class FastTextModel(Model):
+class SecondOrderModel(Model):
     def __init__(self, params):
         self.ruwordnet = RuWordnet(db_path=params["db_path"], ruwordnet_path=params["ruwordnet_path"])
         self.w2v_ruwordnet = KeyedVectors.load_word2vec_format(params['ruwordnet_vectors_path'], binary=False)
@@ -41,10 +41,30 @@ class FastTextModel(Model):
 
     def __compute_hypernyms(self, neologism, topn=10) -> list:
         hypernyms = []
-        associates = [i[0] for i in self.w2v_ruwordnet.similar_by_vector(self.w2v_data[neologism.lower()], topn)]
+        associates = [i[0] for i in self.w2v_ruwordnet.similar_by_vector(self.w2v_data[neologism], topn)]
         for associate in associates:
             hypernyms.extend(self.ruwordnet.get_hypernyms_by_id(associate))
         return hypernyms[:10]
+
+
+class OneSecondModel(Model):
+    def __init__(self, params):
+        self.ruwordnet = RuWordnet(db_path=params["db_path"], ruwordnet_path=params["ruwordnet_path"])
+        self.w2v_ruwordnet = KeyedVectors.load_word2vec_format(params['ruwordnet_vectors_path'], binary=False)
+        self.w2v_data = KeyedVectors.load_word2vec_format(params['data_vectors_path'], binary=False)
+
+    def predict_hypernyms(self, neologisms, topn=10) -> dict:
+        return {neologism: self.__compute_hypernyms(neologism, topn) for neologism in neologisms}
+
+    def __compute_hypernyms(self, neologism, topn=10) -> list:
+        hypernyms = []
+        associates = [i[0] for i in self.w2v_ruwordnet.similar_by_vector(self.w2v_data[neologism], topn)]
+        for associate in associates:
+            try:
+                hypernyms.append(self.ruwordnet.get_hypernyms_by_id(associate)[0])
+            except Exception as e:
+                hypernyms.append(associate)
+        return hypernyms
 
 
 def load_config():
@@ -66,7 +86,8 @@ def main():
     params = load_config()
     with open(params['test_path'], 'r', encoding='utf-8') as f:
         test_data = f.read().split("\n")[:-1]
-    baseline = FastTextModel(params)
+    baseline = OneSecondModel(params)
+    print("Model loaded")
     results = baseline.predict_hypernyms(list(test_data))
     save_to_file(results, params['output_path'], baseline.ruwordnet)
 
