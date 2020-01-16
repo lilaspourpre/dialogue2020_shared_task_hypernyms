@@ -28,8 +28,8 @@ def parse_relations(file):
 
 def parse_senses(file):
     soup = get_soup(file)
-    return [(element.attrs['id'], element.attrs['synset_id'], element.attrs['name']) for element in
-            soup.findAll('sense')]
+    return [(el.attrs['id'], element.attrs['id'], el.text) for element in soup.findAll('synset')
+           for el in element.findAll('sense')]
 
 
 def get_wordnet_files_from_path(path):
@@ -54,11 +54,11 @@ class RuWordnet(DatabaseRuWordnet):
 
     def __initialize_db(self, path):
         if self.is_empty():
-            print("Inserting data to data db")
-            synset_files, relation_files, senses_files = get_wordnet_files_from_path(path)
+            print("Inserting data to database")
+            synset_files, relation_files, _ = get_wordnet_files_from_path(path)
             synsets = [synset for file in synset_files for synset in parse_synsets(file)]
             relations = [relation for file in relation_files for relation in parse_relations(file)]
-            senses = [sense for file in senses_files for sense in parse_senses(file)]
+            senses = [sense for file in synset_files for sense in parse_senses(file)]
             self.insert_synsets(synsets)
             self.insert_relations(relations)
             self.insert_senses(senses)

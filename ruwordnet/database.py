@@ -75,3 +75,12 @@ class DatabaseRuWordnet(object):
 
     def get_all_senses(self):
         return self.cursor.execute('''SELECT * FROM senses''').fetchall()
+
+    def is_hyponym(self, first, second):
+        return self.cursor.execute('''SELECT * FROM relations WHERE hypernym_id="{}" and hyponym_id="{}"'''
+                                            .format(first, second)).fetchall()
+
+    def get_synset_by_sense(self, sense):
+        synset_id = self.cursor.execute('''SELECT synset_id from senses where sense_name="{}"'''
+                                        .format(sense)).fetchall()
+        return synset_id[0][0] if len(synset_id) > 0 else ''
