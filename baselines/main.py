@@ -41,9 +41,8 @@ class FastTextModel(Model):
 
     def __compute_hypernyms(self, neologism, topn=10) -> list:
         hypernyms = []
-        associates = [i[0] for i in self.w2v_ruwordnet.similar_by_vector(self.w2v_data[neologism], topn)]
+        associates = [i[0] for i in self.w2v_ruwordnet.similar_by_vector(self.w2v_data[neologism.lower()], topn)]
         for associate in associates:
-            print(associate, self.ruwordnet.get_name_by_id(associate))
             hypernyms.extend(self.ruwordnet.get_hypernyms_by_id(associate))
         return hypernyms[:10]
 
