@@ -31,23 +31,6 @@ class BertVectorizer:
         vectors = {word: np.mean(sentence_vectors, 0) for sentence_vectors, word in zip(batch, data)}
         self.save_as_w2v(vectors, output_path)
 
-    # -------------------------------------------------------------
-    # get vectors
-    # -------------------------------------------------------------
-
-    def __get_vectors(self, sentences, indices):
-        word_vectors = []
-        batch = self.bert.vectorize_sentences(sentences)
-
-        for sent_vectors, tokens, sent_indices in zip(batch, sentences, indices):
-            assert sent_vectors.shape[0] == len(tokens)
-            word_vectors.extend([(synset, self.get_avg_vector(sent_vectors, borders))
-                                 for synset, borders in sent_indices.items()])
-        return word_vectors
-
-    @staticmethod
-    def get_avg_vector(vectors, borders):
-        return np.mean([np.mean(vectors[start:end], 0) for start, end in borders], 0)
 
     @staticmethod
     def save_as_w2v(dictionary, output_path):
