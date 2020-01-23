@@ -33,6 +33,7 @@ class FasttextVectorizer:
             words = [i.strip(punctuation) for i in text.split()]
             sum_vector += np.sum(self.__get_data_vectors(words), axis=0)/len(words)
         return sum_vector/len(texts)
+
     # -------------------------------------------------------------
     # vectorize data
     # -------------------------------------------------------------
@@ -47,7 +48,12 @@ class FasttextVectorizer:
             vectors[i, :] = self.model[word]
         return vectors
 
-    def save_as_w2v(self, words: list, vectors: np.array, output_path):
+    # -------------------------------------------------------------
+    # save
+    # -------------------------------------------------------------
+
+    @staticmethod
+    def save_as_w2v(words: list, vectors: np.array, output_path: str):
         assert len(words) == len(vectors)
         with open(output_path, 'w', encoding='utf-8') as w:
             w.write(f"{vectors.shape[0]} {vectors.shape[1]}\n")
