@@ -7,74 +7,65 @@ from collections import defaultdict
 from ruwordnet.ruwordnet_reader import RuWordnet
 
 
-def retrieve_sentences_with_positions(input_filename: str, output_dir: str, synset_senses: dict, testset: set,
-                                      sense_dict: dict) -> int:
-    overall_tokens = 0
-    output_path = os.path.join(output_dir, os.path.splitext(os.path.basename(input_filename))[0])
-    tokens = []
-    lemmas = []
-    word_positions = defaultdict(list)
-    ruwordnet_positions = defaultdict(list)
-    sense_start = 0
-    sense_phrase = []
+def retrieve_ruwordnet_positions(input_filename: str, output_path: str, synset_senses: dict, sense2synset: dict):
+    with open(input_filename, 'rt', encoding='utf-8') as f, open(output_path, 'w', encoding='utf-8') as w:
+        texts = f.read().split("SpacesAfter=\\r\\n")
+        context = [[line.split("\t")[:3] for line in text.split("\n") if line and not line.startswith("#")]
+                   for text in texts]
+        for sentence in context:
+            tokens = [word[1] for word in sentence]
+            lemmas = []
+            for index, _, lemma in sentence:
+                synsets, end = get_end(sentence, lemma, int(index), synset_senses, sense2synset)
+                if synsets:
+                    for synset in synsets:
+                        lemmas.append((synset, (int(index)-1, end)))
+            if lemmas:
+                w.write(json.dumps([tokens, lemmas]) + "\n")
 
-    with open(input_filename, 'rt', encoding='utf-8') as f, \
-            open(output_path, 'w', encoding='utf-8') as w:
-        for line in f:
-            if line == "\n":
-                overall_tokens += len(tokens)
-                # add last sense phrase if exist
-                if len(sense_phrase) > 0:
-                    ruwordnet_positions[" ".join(sense_phrase).upper()].append((sense_phrase, len(tokens)))
 
-                # save to file
-                if len(tokens) > 0 and (ruwordnet_positions or word_positions):
-                    ruwordnet_positions = dict([(sense_dict[name], indices)
-                                                for name, indices in ruwordnet_positions.items() if name in sense_dict])
-                    w.write(json.dumps([tokens, {"ruwordnet": ruwordnet_positions,
-                                                 "words": word_positions}]) + "\n")
+def get_end(sentence, first_lemma, index, senses_chain, sense2synset):
+    last_index = index
+    if first_lemma in senses_chain:
+        sense_phrase = [first_lemma]
+        for cur_index, token, lemma in sentence[index:]:
+            if lemma in senses_chain[sense_phrase[-1]]:
+                sense_phrase.append(lemma)
+                last_index = int(cur_index)
+            else:
+                break
+        if len(sense2synset[" ".join(sense_phrase).upper()]) > 0:
+            return sense2synset[" ".join(sense_phrase).upper()], last_index
+    return False, last_index
 
-                # clean buffer
-                tokens = []
-                lemmas = []
-                word_positions = defaultdict(list)
-                ruwordnet_positions = defaultdict(list)
-                sense_start = 0
-                sense_phrase = []
 
-            elif not line.startswith("#"):
-                split_line = line[:-1].split("\t")
+def retrieve_word_positions(input_filename, output_path, testset) -> None:
+    with open(input_filename, 'rt', encoding='utf-8') as f, open(output_path, 'w', encoding='utf-8') as w:
+        texts = f.read().split("SpacesAfter=\\r\\n")
+        context = [[line.split("\t")[:3] for line in text.split("\n") if line and not line.startswith("#")]
+                   for text in texts]
+        for sentence in context:
+            tokens = [word[1] for word in sentence]
+            lemmas = [(lemma, (int(index)-1, int(index))) for index, token, lemma in sentence if lemma in testset]
+            if lemmas:
+                w.write(json.dumps([tokens, lemmas]) + "\n")
 
-                index = int(split_line[0])
-                token = split_line[1]
-                lemma = split_line[2]
 
-                tokens.append(token)
-                lemmas.append(lemma)
+def create_sense2synset(senses, pos):
+    sense2synset = defaultdict(list)
+    for id, synset, text in senses:
+        if synset.endswith(pos):
+            sense2synset[text].append(synset)
+    return sense2synset
 
-                # add position of words from testset
-                if lemma in testset:
-                    word_positions[lemma].append((index, index + 1))
 
-                # compute position of synset
-                if len(sense_phrase) == 0:
-                    if lemma in synset_senses:
-                        sense_start = index
-                        sense_phrase = [lemma]
-
-                elif lemma in synset_senses[sense_phrase[-1]]:
-                    sense_phrase.append(lemma)
-
-                else:
-                    ruwordnet_positions[" ".join(sense_phrase).upper()].append((sense_start, index))
-
-                    if lemma in synset_senses:
-                        sense_start = index
-                        sense_phrase = [lemma]
-                    else:
-                        sense_start = 0
-                        sense_phrase = []
-    return overall_tokens
+def create_senses_chain(ruwordnet, pos):
+    synset_senses = defaultdict(set)
+    for _, synset, text in ruwordnet.get_all_senses():
+        if synset.endswith(pos):
+            for token, next_token in create_synset_senses(text.lower()):
+                synset_senses[token].add(next_token)
+    return synset_senses
 
 
 def create_synset_senses(text):
@@ -82,44 +73,49 @@ def create_synset_senses(text):
     return [(token, next_token) for token, next_token in zip(tokens, tokens[1:] + [True])]
 
 
+def read_test_data(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return set(f.read().lower().split("\n")[:-1])
+
+
 def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', dest="input_dir")
-    parser.add_argument('-o', '--output', dest="output_dir")
-    parser.add_argument('-t', '--test', dest="test_path")
-    parser.add_argument('-r', '--ruwordnet', dest="ruwordnet_path")
-    parser.add_argument('-s', '--start', dest="start", type=int)
-    parser.add_argument('-e', '--end', dest="end", type=int)
+    # create the top-level parser
+    parser = argparse.ArgumentParser(description="get context with positions")
+    parser.add_argument('--corpus_path', type=str, dest="corpus_path", help="lemmatized ud news corpus path")
+    parser.add_argument('--output_path', type=str, dest="output_path", help='output_path')
+    subparsers = parser.add_subparsers(help='sub-command help')
+
+    # create the parser for the "ruwordnet" command
+    ruwordnet_parser = subparsers.add_parser('ruwordnet', help='ruwordnet help')
+    ruwordnet_parser.add_argument('--ruwordnet_path', type=str, help='ruwordnet database path')
+    ruwordnet_parser.add_argument('--pos', choices='NV', help="choose pos-tag to subset ruwordnet")
+
+    # create the parser for the "data" command
+    parser_b = subparsers.add_parser('data', help='data help')
+    parser_b.add_argument('--data_path', type=str, dest="data_path", help='path to test data')
+
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
-    nb = 0
-    ruwordnet = RuWordnet(db_path=args.ruwordnet_path, ruwordnet_path="")
-    sense_dict = dict([(text, synset) for id, synset, text in ruwordnet.get_all_senses()])
-    print("----- database loaded -----")
+    file_paths = [os.path.join(x, i) for x, _, z in os.walk(args.corpus_path) for i in z]
 
-    synset_senses = defaultdict(set)
-    for _, synset, text in ruwordnet.get_all_senses():
-        for token, next_token in create_synset_senses(text.lower()):
-            synset_senses[token].add(next_token)
-    print("----- synsets loaded -----")
+    if "ruwordnet_path" in args:
+        ruwordnet = RuWordnet(db_path=args.ruwordnet_path, ruwordnet_path="")
+        sense2synset = create_sense2synset(ruwordnet.get_all_senses(), args.pos)
+        synset_senses = create_senses_chain(ruwordnet, args.pos)
+        for filename in file_paths:
+            start_time = time.time()
+            retrieve_ruwordnet_positions(filename, args.output_path, synset_senses, sense2synset)
+            print(f"---- File {filename} took {(time.time() - start_time)} seconds ----")
 
-    testset = set()
-    for path in os.listdir(args.test_path):
-        with open(os.path.join(args.test_path, path), 'r', encoding='utf-8') as f:
-            testset.update(f.read().lower().split("\n")[:-1])
-    print("----- testset loaded -----")
-
-    # retrieve positions
-    file_paths = [os.path.join(x, i) for x, _, z in os.walk(args.input_dir) for i in z]  # [args.start: args.end]
-    for filename in file_paths:
-        start_time = time.time()
-        nb += retrieve_sentences_with_positions(filename, args.output_dir, synset_senses, testset, sense_dict)
-        print(f"---- File {filename} took {(time.time() - start_time)} seconds ----")
-
-    print(f"overall tokens: {nb}")
+    elif "data_path" in args:
+        data = read_test_data(args.data_path)
+        for filename in file_paths:
+            start_time = time.time()
+            retrieve_word_positions(filename, args.output_path, data)
+            print(f"---- File {filename} took {(time.time() - start_time)} seconds ----")
 
 
 if __name__ == '__main__':
