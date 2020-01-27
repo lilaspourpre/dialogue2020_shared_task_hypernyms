@@ -7,6 +7,10 @@ from collections import defaultdict
 from ruwordnet.ruwordnet_reader import RuWordnet
 
 
+# -------------------------------------------------------------
+# get ruwordnet
+# -------------------------------------------------------------
+
 def retrieve_ruwordnet_positions(input_filename: str, output_path: str, synset_senses: dict, sense2synset: dict):
     with open(input_filename, 'rt', encoding='utf-8') as f, open(output_path, 'w', encoding='utf-8') as w:
         texts = f.read().split("SpacesAfter=\\r\\n")
@@ -38,6 +42,10 @@ def get_end(sentence, first_lemma, index, senses_chain, sense2synset):
             return sense2synset[" ".join(sense_phrase).upper()], last_index
     return False, last_index
 
+# -------------------------------------------------------------
+# get test data
+# -------------------------------------------------------------
+
 
 def retrieve_word_positions(input_filename, output_path, testset) -> None:
     with open(input_filename, 'rt', encoding='utf-8') as f, open(output_path, 'w', encoding='utf-8') as w:
@@ -50,6 +58,10 @@ def retrieve_word_positions(input_filename, output_path, testset) -> None:
             if lemmas:
                 w.write(json.dumps([tokens, lemmas]) + "\n")
 
+
+# -------------------------------------------------------------
+#  ruwordnet transformations
+# -------------------------------------------------------------
 
 def create_sense2synset(senses, pos):
     sense2synset = defaultdict(list)
