@@ -58,13 +58,14 @@ class BertContextVectorizer:
 
         for sent_vectors, tokens, sent_indices in zip(batch, sentences, indices):
             assert sent_vectors.shape[0] == len(tokens)
-            word_vectors.extend([(synset, self.get_avg_vector(sent_vectors, borders))
+            word_vectors.extend([(synset, self.get_avg_vector(sent_vectors, borders, synset, tokens))
                                  for synset, borders in sent_indices])
         return word_vectors
 
     @staticmethod
-    def get_avg_vector(vectors, borders):
-        return np.mean([np.mean(vectors[start:end], 0) for start, end in borders], 0)
+    def get_avg_vector(vectors, borders, s, t):
+        start, end = borders
+        return np.mean(vectors[start:end], 0)
 
     # -------------------------------------------------------------
     # save vectors

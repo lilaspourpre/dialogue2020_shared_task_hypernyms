@@ -14,16 +14,16 @@ from ruwordnet.ruwordnet_reader import RuWordnet
 def retrieve_ruwordnet_positions(input_filename: str, output_path: str, synset_senses: dict, sense2synset: dict):
     with open(input_filename, 'rt', encoding='utf-8') as f, open(output_path, 'w', encoding='utf-8') as w:
         texts = f.read().split("SpacesAfter=\\r\\n")
-        context = [[line.split("\t")[:3] for line in text.split("\n") if line and not line.startswith("#")]
+        context = [[line.split("\t")[1:3] for line in text.split("\n") if line and not line.startswith("#")]
                    for text in texts]
         for sentence in context:
             tokens = [word[1] for word in sentence]
             lemmas = []
-            for index, _, lemma in sentence:
-                synsets, end = get_end(sentence, lemma, int(index), synset_senses, sense2synset)
+            for index, _, lemma in enumerate(sentence):
+                synsets, end = get_end(sentence, lemma, index+1, synset_senses, sense2synset)
                 if synsets:
                     for synset in synsets:
-                        lemmas.append((synset, (int(index)-1, end)))
+                        lemmas.append((synset, (index, end)))
             if lemmas:
                 w.write(json.dumps([tokens, lemmas]) + "\n")
 
@@ -32,10 +32,10 @@ def get_end(sentence, first_lemma, index, senses_chain, sense2synset):
     last_index = index
     if first_lemma in senses_chain:
         sense_phrase = [first_lemma]
-        for cur_index, token, lemma in sentence[index:]:
+        for cur_index, (token, lemma) in enumerate(sentence[index:]):
             if lemma in senses_chain[sense_phrase[-1]]:
                 sense_phrase.append(lemma)
-                last_index = int(cur_index)
+                last_index = index + int(cur_index)
             else:
                 break
         if len(sense2synset[" ".join(sense_phrase).upper()]) > 0:
@@ -50,11 +50,11 @@ def get_end(sentence, first_lemma, index, senses_chain, sense2synset):
 def retrieve_word_positions(input_filename, output_path, testset) -> None:
     with open(input_filename, 'rt', encoding='utf-8') as f, open(output_path, 'w', encoding='utf-8') as w:
         texts = f.read().split("SpacesAfter=\\r\\n")
-        context = [[line.split("\t")[:3] for line in text.split("\n") if line and not line.startswith("#")]
+        context = [[line.split("\t")[1:3] for line in text.split("\n") if line and not line.startswith("#")]
                    for text in texts]
         for sentence in context:
             tokens = [word[1] for word in sentence]
-            lemmas = [(lemma, (int(index)-1, int(index))) for index, token, lemma in sentence if lemma in testset]
+            lemmas = [(lemma, (index, index+1)) for index, (token, lemma) in enumerate(sentence) if lemma in testset]
             if lemmas:
                 w.write(json.dumps([tokens, lemmas]) + "\n")
 
