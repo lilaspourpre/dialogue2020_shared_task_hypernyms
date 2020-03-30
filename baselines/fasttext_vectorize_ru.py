@@ -28,13 +28,13 @@ if __name__ == '__main__':
         elif synset_id.endswith("V"):
             verb_synsets[synset_id].append(text.lower())
 
-    ft.vectorize_groups(noun_synsets, os.path.join(vector_path, "ruwordnet_nouns_new.txt"))
-    ft.vectorize_groups(verb_synsets, os.path.join(vector_path, "ruwordnet_verbs_new.txt"))
+    ft.vectorize_groups(noun_synsets, os.path.join(vector_path, "ruwordnet_nouns.txt"))
+    ft.vectorize_groups(verb_synsets, os.path.join(vector_path, "ruwordnet_verbs.txt"))
 
     # ----------------------
     # vectorize data
     # ----------------------
-    process_data(ft, "../dataset/public/verbs_public_no_labels.tsv", os.path.join(vector_path, "verbs_public_new.txt"))
-    process_data(ft, "../dataset/public/nouns_public_no_labels.tsv", os.path.join(vector_path, "nouns_public_new.txt"))
-    process_data(ft, "../dataset/private/verbs_private_no_labels.tsv", os.path.join(vector_path, "verbs_private_new.txt"))
-    process_data(ft, "../dataset/private/nouns_private_no_labels.tsv", os.path.join(vector_path, "nouns_private_new.txt"))
+    process_data(ft, "../dataset/public/verbs_public_no_labels.tsv", os.path.join(vector_path, "verbs_public.txt"))
+    process_data(ft, "../dataset/public/nouns_public_no_labels.tsv", os.path.join(vector_path, "nouns_public.txt"))
+    process_data(ft, "../dataset/private/verbs_private_no_labels.tsv", os.path.join(vector_path, "verbs_private.txt"))
+    process_data(ft, "../dataset/private/nouns_private_no_labels.tsv", os.path.join(vector_path, "nouns_private.txt"))
