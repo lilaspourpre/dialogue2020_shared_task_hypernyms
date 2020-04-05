@@ -34,7 +34,9 @@ def main():
     with open(output_filename, 'wt') as output_file:
         true = get_reference(truth_dir)
         submitted = get_submitted(submit_dir)
-        if set(true) != set(submitted):
+        if len(set(true).intersection(set(submitted))) == 0:
+            raise Exception("Reference and Submitted files have no samples in common")
+        elif set(true) != set(submitted):
             print("Not all words are presented in your file")
         mean_ap, mean_rr = get_score(true, submitted, 10)
         output_file.write("map: {0}\nmrr: {1}\n".format(mean_ap, mean_rr))
