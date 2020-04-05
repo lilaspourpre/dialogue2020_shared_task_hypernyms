@@ -17,12 +17,12 @@ def load_config():
 
 
 def generate_hypernym_fn(params, model):
-    # for RuWordNet
+    # for English WordNet
     if params['language'] == 'en':
         wn = WordNetCorpusReader(params["ruwordnet_path"], None)
         return lambda x: [hypernym.name() for hypernym in wn.synset(x).hypernyms()
                           if hypernym.name() in model.w2v_synsets.vocab]
-    # for English WordNet
+    # for RuWordNet
     elif params['language'] == 'ru':
         ruwordnet = RuWordnet(db_path=params["db_path"], ruwordnet_path=params["ruwordnet_path"])
         return lambda x: ruwordnet.get_hypernyms_by_id(x)
