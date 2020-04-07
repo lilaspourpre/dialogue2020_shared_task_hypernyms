@@ -4,8 +4,6 @@ from gensim.models import KeyedVectors
 from scipy import spatial
 from operator import itemgetter
 
-from ruwordnet.ruwordnet_reader import RuWordnet
-
 
 class Model(ABC):
     def __init__(self, params):
@@ -59,7 +57,6 @@ class HCHModel(BaselineModel):
 class RankedModel(HCHModel):
     def __init__(self, params):
         super().__init__(params)
-        self.ruwordnet = RuWordnet(db_path=params["db_path"], ruwordnet_path=params["ruwordnet_path"])
 
     def compute_candidates(self, neologism, get_hypernym_fn, topn=10):
         hypernyms = self.compute_hchs(neologism, get_hypernym_fn, topn)
