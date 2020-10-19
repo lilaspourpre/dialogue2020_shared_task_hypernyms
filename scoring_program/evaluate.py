@@ -3,7 +3,7 @@ import argparse
 import os
 import sys
 
-from utils import get_submitted, get_reference
+from scoring_program.utils import get_submitted, get_reference
 
 
 # This is python 2 code

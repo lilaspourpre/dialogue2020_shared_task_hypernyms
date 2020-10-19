@@ -1,0 +1,13 @@
+{
+  "synsets_vectors_path": "../baselines/models/vectors/bert/en/wordnet_verbs.txt",
+  "data_vectors_path": "../baselines/models/vectors/bert/en/verbs.txt",
+  "test_path": "D:\\dialogue2020\\semevals\\semeval-2016-task-14\\reader\\no_labels_verbs_en_new.2.0-3.0_paper.tsv",
+  "output_path": "predictions/en/bert/predicted_verbs_bert_hch_restricted.tsv",
+  "wiki_path": "../wiki_ru.jsonlines",
+  "wiki_vectors_path": "models/vectors/fasttext/en/wiki.txt",
+  "task": "wordnet",
+  "db_path": null,
+  "ruwordnet_path": "D:\\dialogue2020\\semevals\\semeval-2016-task-14\\WN2.0",
+  "model": "hch",
+  "language": "en"
+}

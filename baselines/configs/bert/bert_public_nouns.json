@@ -1,0 +1,13 @@
+{
+  "synsets_vectors_path": "../baselines/models/vectors/bert/ru/ruwordnet_nouns.txt",
+  "data_vectors_path": "../baselines/models/vectors/bert/ru/nouns_public.txt",
+  "test_path": "../dataset/public/nouns_public_no_labels.tsv",
+  "output_path": "predictions/ru/bert/predicted_public_nouns_tokens_bert_lr.tsv",
+  "wiki_path": "../wiki_ru.jsonlines",
+  "wiki_vectors_path": "models/vectors/fasttext/ru/wiki.txt",
+  "db_path": "../dataset/ruwordnet.db",
+  "task": "russe",
+  "ruwordnet_path": null,
+  "model": "lr",
+  "language": "ru"
+}

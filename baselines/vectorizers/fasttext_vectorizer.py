@@ -50,10 +50,10 @@ class FasttextVectorizer:
     # -------------------------------------------------------------
 
     def vectorize_multiword_data(self, data, output_path, to_upper=True):
-        data_vectors = self.__get_multiword_vectors(data)
+        data_vectors = self.get_multiword_vectors(data)
         self.save_as_w2v(data, data_vectors, output_path, to_upper)
 
-    def __get_multiword_vectors(self, data):
+    def get_multiword_vectors(self, data):
         vectors = np.zeros((len(data), self.model.vector_size))
         for i, multi_word in enumerate(data):
             words = multi_word.replace("_", " ").split()

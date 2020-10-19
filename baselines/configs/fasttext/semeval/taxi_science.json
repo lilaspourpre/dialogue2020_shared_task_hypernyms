@@ -1,0 +1,13 @@
+{
+  "synsets_vectors_path": "D:\\dialogue2020\\dialogue2020_shared_task_hypernyms\\semeval2016_task13\\vectors\\TAXI\\science_en_only_orphan_synsets.txt",
+  "data_vectors_path": "D:\\dialogue2020\\dialogue2020_shared_task_hypernyms\\semeval2016_task13\\vectors\\TAXI\\science_en_only_orphan.txt",
+  "test_path": "D:\\dialogue2020\\dialogue2020_shared_task_hypernyms\\semeval2016_task13\\data\\systems\\TAXI\\EN\\parsed_data\\TAXI_science_en_only_orphan.terms",
+  "output_path": "predictions/semeval/predicted_TAXI_science_en_only_orphan_semeval.tsv",
+  "taxonomy_path": "D:\\dialogue2020\\dialogue2020_shared_task_hypernyms\\semeval2016_task13\\data\\systems\\TAXI\\EN\\TAXI_science.taxo",
+  "model": "semeval",
+  "task": "semeval",
+  "language": null,
+  "wiki_path": "../wiki_en.jsonlines",
+  "wiki_vectors_path": "models/vectors/fasttext/en/wiki.txt",
+  "topn": 10
+}

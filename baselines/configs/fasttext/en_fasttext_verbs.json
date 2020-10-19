@@ -1,0 +1,17 @@
+{
+  "synsets_vectors_path": "models/vectors/fasttext/en/verbs_wordnet_fasttext_1.7-3.0_paper.txt",
+  "data_vectors_path": "models/vectors/fasttext/en/verbs_fasttext_cut_1.7-3.0_paper.txt",
+  "test_path": "D:\\dialogue2020\\semevals\\semeval-2016-task-14\\reader\\no_labels_verbs_en_new.1.7-3.0_paper.tsv",
+  "output_path": "predictions/en/fasttext/predicted_verbs_en_1.7-3.0_all.tsv",
+  "db_path": null,
+  "ruwordnet_path": "D:\\dialogue2020\\semevals\\semeval-2016-task-14\\WN1.7",
+  "language": "en",
+  "node2vec_path": "D:\\dialogue2020\\diachrony_for_taxonomy_enrichment\\data\\node2vec\\node2vec_en_verbs.txt",
+  "projection_path": "D:\\dialogue2020\\projection_en_1.7_verbs",
+  "poincare_path": "D:\\dialogue2020\\diachrony_for_taxonomy_enrichment\\data\\poincare\\poincare_en_verbs_1.7.txt",
+  "wiki_path": "../wiki_en.jsonlines",
+  "wiki_vectors_path": "models/vectors/fasttext/en/wiki.txt",
+  "model": "all",
+  "task": "wordnet",
+  "n": 6
+}

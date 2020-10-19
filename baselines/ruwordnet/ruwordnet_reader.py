@@ -77,45 +77,12 @@ class RuWordnet(DatabaseRuWordnet):
             self.insert_senses(senses)
 
 
-class RuWordNetReader:
-    def __init__(self, nouns_path, verbs_path, rwn):
-        self.nouns = self.__read_data(nouns_path)
-        self.verbs = self.__read_data(verbs_path)
-        self.rwn = rwn
-        print(self.rwn)
-
-    def get_data(self):
-        return self.nouns + self.verbs
-
-    def __read_data(self, path):
-        pairs = []
-        with open(path, "r", encoding='utf-8') as f:
-            f.readline()
-            for line in f:
-                _, word, _, str_parents = line.strip().split("\t")
-                parents = [i.strip().strip("',[]").strip() for i in str_parents.split(",")]
-                for parent in parents:
-                    assert "," not in parent and "'" not in parent and not parent.startswith(" ")
-                    pairs.append((word, parent))
-                    print(self.get_negative_examples(word))
-                    break
-        return pairs
-
-    def get_negative_examples(self, word):
-        nodes = list(self.rwn.get_all_senses())
-        print(nodes)
-
-    def get_random(self, word, stop_word):
-        random_node = choice(nodes)
-        while random_node == stop_word or random_node == word:
-            random_node = choice(nodes)
-        return random_node
-
 #
-# nouns_path = "D:/dialogue2020/taxonomy-enrichment/data/training_data/synsets_nouns.tsv"
-# verbs_path = "D:/dialogue2020/taxonomy-enrichment/data/training_data/synsets_verbs.tsv"
-# rwn_path = "D:/dialogue2020/dialogue2020_shared_task_hypernyms/dataset/ruwordnet.db"
-# ruwordnet = RuWordnet(rwn_path, None)
+nouns_path = "D:/dialogue2020/taxonomy-enrichment/data/training_data/synsets_nouns.tsv"
+verbs_path = "D:/dialogue2020/taxonomy-enrichment/data/training_data/synsets_verbs.tsv"
+rwn_path = "D:/dialogue2020/dialogue2020_shared_task_hypernyms/dataset/ruwordnet.db"
+ruwordnet = RuWordnet(rwn_path, None)
+
 # print(ruwordnet)
 #
 # rwn_reader = RuWordNetReader(nouns_path, verbs_path, ruwordnet)

@@ -41,11 +41,18 @@ class DatabaseRuWordnet(object):
         if name.upper() == "БЫК /МОЛДОВА/":
             name = "БЫК /Молдова/"
         elif name.upper() == "БЕРЕЗОВКА /НА УКРАИНЕ/":
-            name = "БЕРЕЗОВКА /на Украине/"
+            return "102289-N"
+        elif name.upper() == "БЕРЕЗОВКА /В БЕЛОРУСИИ/":
+            return "106043-N"
+        elif name.upper() == "ВАНКУВЕР /ПОРТ/":
+            return "104169-N"
+        elif name.upper() == "БУЗУЛУК /РЕКА БАССЕЙНА ДОНА/":
+            return "102578-N"
+        elif name.upper() == "БРЕСТ /БЕЛОРУССИЯ/":
+            return "100464-N"
         else:
             name = name.upper()
-        synset_id = self.cursor.execute('''SELECT id FROM synsets WHERE ruthes_name="{}"'''
-                                        .format(name.replace('"', '\"').replace("/", "\/"))).fetchall()
+        synset_id = self.cursor.execute('''SELECT id FROM synsets WHERE ruthes_name = ?''', (name.upper(), )).fetchall()
         return synset_id[-1][0] if len(synset_id) > 0 else ''
 
     def get_name_by_id(self, synset_id):

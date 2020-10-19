@@ -1,0 +1,17 @@
+{
+  "synsets_vectors_path": "models/vectors/fasttext/ru/ruwordnet_nouns.txt",
+  "data_vectors_path": "models/vectors/fasttext/ru/nouns_public.txt",
+  "test_path": "../dataset/public/nouns_public_no_labels.tsv",
+  "output_path": "predictions/predicted_public_nouns_all.tsv",
+  "db_path": "../dataset/ruwordnet.db",
+  "wiki_path": "../wiki_ru.jsonlines",
+  "node2vec_path": "D:\\dialogue2020\\diachrony_for_taxonomy_enrichment\\data\\node2vec\\node2vec_ru_nouns.txt",
+  "projection_path": "D:\\dialogue2020\\diachrony_for_taxonomy_enrichment\\data\\node2vec\\projection_ru_nouns",
+  "wiki_vectors_path": "models/vectors/fasttext/ru/wiki.txt",
+  "poincare_path": "D:\\dialogue2020\\diachrony_for_taxonomy_enrichment\\data\\poincare\\poincare_ru_nouns.txt",
+  "ruwordnet_path": null,
+  "model": "all",
+  "task": "russe",
+  "language": "ru",
+  "n": 6
+}
